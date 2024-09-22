@@ -8,3 +8,8 @@
     - https://grouplens.org/datasets/movielens/
     - https://files.grouplens.org/datasets/movielens/ml-latest-small-README.html
 
+**Requirements**:
+- Visual Studio Code.
+- Docker Desktop.
+- Extensions on VS Code:
+    - Devcontainer.
