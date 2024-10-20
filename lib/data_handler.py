@@ -2,7 +2,57 @@ import pandas as pd
 import numpy as np
 from typing import Optional, Any, Dict
 
-def load_csv_data(file_path: str, **kwargs: Any) -> Optional[pd.DataFrame]:
+
+class MovieLens:
+
+    def __init__(self):
+    
+        self.links, self.movies, self.ratings, self.tags = self._load_data()
+        self._transform_tags()
+        self._transform_movies()
+        self.users = self._compute_users()
+
+    def _load_data(self):
+
+        file_directory = "/workspaces/movie-lens-latest-small/data"
+
+        links = load_csv(f"{file_directory}/links.csv")
+        movies = load_csv(f"{file_directory}/movies.csv")
+        ratings = load_csv(f"{file_directory}/ratings.csv")
+        tags = load_csv(f"{file_directory}/tags.csv")
+
+        return links, movies, ratings, tags
+
+    def _transform_tags(self):
+
+        self.tags = (
+            self.tags
+            .groupby(["userId", "movieId"])
+            .agg(lambda x: ', '.join(map(str, x))).reset_index()
+        )
+
+    def _transform_movies(self):
+
+        # Extract title and year using a regex and create new columns
+        self.movies['release_year'] = (
+            self.movies.loc[:, 'title'].str.extract(r'\((\d{4})\)')
+        )
+        self.movies['title'] = (
+            self.movies.loc[:, 'title'].str.extract(r'^(.*) \(\d{4}\)')
+        )
+        self.movies['genres'] = self.movies['genres'].str.replace('|', ', ', regex=False)
+
+        self.movies = pd.merge(self.movies, self.links, on=["movieId"], how="left")
+
+    def _compute_users(self):
+        
+        return pd.merge(
+            self.ratings, self.tags, 
+            on=["userId", "movieId"], how="left", suffixes=('_ratings', '_tags')
+        )
+
+
+def load_csv(file_path: str, **kwargs: Any) -> Optional[pd.DataFrame]:
     """
     Load CSV data from a given file path.
 
@@ -21,34 +71,11 @@ def load_csv_data(file_path: str, **kwargs: Any) -> Optional[pd.DataFrame]:
         print(f"Error loading data: {e}")
         return None
 
+if __name__ == "__main__":
 
-def descriptive_analysis(df: pd.DataFrame) -> Dict:
-    """
-    Perform descriptive analysis on a DataFrame with numerical and categorical columns.
+    movie_lens = MovieLens()
 
-    Parameters:
-    - df (DataFrame): The input DataFrame.
+    print(movie_lens.movies)
+    print(movie_lens.users)
 
-    Returns:
-    - summary (dict): A dictionary containing summary statistics.
-    """
-    summary = {}
 
-    # Numerical columns
-    numerical_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    summary['numerical'] = df[numerical_cols].describe()
-
-    # Categorical columns
-    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-    categorical_summary = {}
-    for col in categorical_cols:
-        categorical_summary[col] = {
-            'unique_values': df[col].nunique(),
-            'top_value': df[col].mode()[0],
-            'top_frequency': df[col].value_counts().iloc[0],
-            'missing_values': df[col].isnull().sum()
-        }
-    
-    summary['categorical'] = pd.DataFrame(categorical_summary)
-
-    return summary
