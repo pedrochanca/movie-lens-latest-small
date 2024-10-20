@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import re
+
 from typing import Optional, Any, Dict
 
 
@@ -33,14 +35,31 @@ class MovieLens:
 
     def _transform_movies(self):
 
-        # Extract title and year using a regex and create new columns
-        self.movies['release_year'] = (
-            self.movies.loc[:, 'title'].str.extract(r'\((\d{4})\)')
+        def extract_title_and_year(title):
+            # Match titles with year in parentheses at the end
+            match = re.match(r'^(.*?)(?:\s*\((\d{4})\))?$', title)
+            if match:
+                extracted_title = match.group(1).strip()
+                year = match.group(2)
+                return extracted_title, year
+            
+            return title, None
+
+        # Apply the function to create new columns
+        self.movies['extracted_title'], self.movies['release_year'] = zip(
+            *self.movies['title'].apply(extract_title_and_year)
         )
-        self.movies['title'] = (
-            self.movies.loc[:, 'title'].str.extract(r'^(.*) \(\d{4}\)')
+        # Update the original 'title' column
+        self.movies['title'] = self.movies['extracted_title']
+        # Drop the temporary 'extracted_title' column
+        self.movies.drop('extracted_title', axis=1, inplace=True)
+
+        # Replace NaN values in the 'release_year' column with an empty string
+        self.movies['release_year'] = self.movies['release_year'].fillna('')
+
+        self.movies['genres'] = (
+            self.movies['genres'].str.replace('|', ', ', regex=False)
         )
-        self.movies['genres'] = self.movies['genres'].str.replace('|', ', ', regex=False)
 
         self.movies = pd.merge(self.movies, self.links, on=["movieId"], how="left")
 
@@ -70,6 +89,10 @@ def load_csv(file_path: str, **kwargs: Any) -> Optional[pd.DataFrame]:
     except Exception as e:
         print(f"Error loading data: {e}")
         return None
+
+
+
+
 
 if __name__ == "__main__":
 

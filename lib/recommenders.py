@@ -17,7 +17,7 @@ class ContentBasedRecommender:
         self._add_features_column()
 
         self.tfidf_vectorizer = TfidfVectorizer(stop_words='english')
-        self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(self.movies['genre'])
+        self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(self.movies['features'])
 
         if verbose:
             print(self.tfidf_matrix)
@@ -55,7 +55,7 @@ class ContentBasedRecommender:
 
         for i, feature in enumerate(self.features_columns):
             if i != 0:
-                features += ' '
+                features += ', '
 
             features += self.movies[feature]
 
