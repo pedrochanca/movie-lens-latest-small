@@ -1,9 +1,7 @@
 import pandas as pd
-import numpy as np
 import re
 
-from typing import Optional, Any, Dict
-
+from typing import Optional, Any
 
 class MovieLens:
 

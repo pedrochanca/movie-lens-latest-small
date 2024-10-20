@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -81,8 +80,8 @@ if __name__ == "__main__":
             "Romance, Drama", "Comedy, Drama"
         ],
         "keywords": [
-            "Time Travel, Matrix, Dystopia", "Superhero, Infinity War", "Dream, Illusion", 
-            "Love, Shipwreck", "Friendship, Life"
+            "Time Travel, Matrix, Dystopia", "Superhero, Infinity War", 
+            "Dream, Illusion", "Love, Shipwreck", "Friendship, Life"
         ]
     }
 
