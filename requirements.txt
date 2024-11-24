@@ -1,6 +1,7 @@
+ipykernel
 numpy
 pandas
 scikit-learn
 matplotlib
 plotly
-scikit-learn
+notebook

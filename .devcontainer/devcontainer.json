@@ -13,10 +13,14 @@
             "extensions": [
                 "ms-python.python",
                 "ms-python.vscode-pylance",
-                "ms-azuretools.vscode-docker"
+                "ms-azuretools.vscode-docker",
+                "ms-toolsai.jupyter"
             ]
         }
     },
     "postCreateCommand": "pip install -r requirements.txt",
-    "remoteUser": "root"
+    "remoteUser": "root",
+    "forwardPorts": [
+        8888
+    ]
 }
